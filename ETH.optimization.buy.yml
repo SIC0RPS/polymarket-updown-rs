@@ -1,0 +1,272 @@
+allocation:
+  max_inventory_per_token: 99
+base_half_spread:
+  type: float
+  low: 0.01
+  high: 0.04
+  step: 0.01
+  default: 0.04
+paired_first_managed_sell_slippage_tolerance:
+  type: float
+  low: 0.0
+  high: 0.25
+  step: 0.01
+  default: 0.07
+paired_first_managed_sell_aggressiveness:
+  type: float
+  low: 0.0
+  high: 0.10
+  step: 0.01
+  default: 0.08
+oracle_side_noise_weight:
+  type: float
+  low: 1.0
+  high: 2.00
+  step: 0.01
+  default: 1.3
+oracle_side_flip_hysteresis:
+  type: float
+  low: 0.0
+  high: 0.04
+  step: 0.01
+  default: 0.03
+oracle_side_flip_noise_weight:
+  type: float
+  low: 0.00
+  high: 1.5
+  step: 0.01
+  default: 1.5
+oracle_side_min_advantage:
+  type: float
+  low: 0.0
+  high: 0.08
+  step: 0.01
+  default: 0.02
+ctf_likely_winner_min_confidence:
+  type: float
+  low: 0.0
+  high: 0.9
+  step: 0.05
+  default: 0.25
+live_fair_value_model_micro_logistic_l2_penalty:
+  type: float
+  low: 0.25
+  high: 4.0
+  step: 0.25
+  default: 1.0
+live_fair_value_model_market_calibration_l2_penalty:
+  type: float
+  low: 0.25
+  high: 4.0
+  step: 0.25
+  default: 1.0
+live_fair_value_model_beta_calibration_l2_penalty:
+  type: float
+  low: 0.25
+  high: 4.0
+  step: 0.25
+  default: 1.0
+live_fair_value_model_prob_calibration_logit_bias:
+  type: float
+  low: -0.03
+  high: 0.03
+  step: 0.01
+  default: -0.03
+live_fair_value_model_prob_calibration_logit_scale:
+  type: float
+  low: 0.85
+  high: 1.35
+  step: 0.01
+  default: 1.27
+live_fair_value_model_depth_pressure_logit_weight:
+  type: float
+  low: 0.0
+  high: 0.8
+  step: 0.01
+  default: 0.21
+live_fair_value_model_min_forecast_sigma2:
+  type: float
+  low: 5.0e-09
+  high: 3.0e-08
+  step: 1.0e-09
+  default: 0.000000013
+live_fair_value_model_model_blend_min_weight:
+  type: float
+  low: 0.0
+  high: 0.35
+  step: 0.01
+  default: 0.06
+live_fair_value_model_model_blend_weight_span_fraction:
+  type: float
+  low: 0.0
+  high: 1.0
+  step: 0.01
+  default: 0.58
+live_fair_value_model_model_blend_edge_full:
+  type: float
+  low: 0.04
+  high: 0.12
+  step: 0.01
+  default: 0.08
+live_fair_value_model_model_blend_toxicity_k:
+  type: float
+  low: 0.1
+  high: 0.35
+  step: 0.01
+  default: 0.13
+live_fair_value_model_market_calibration_enabled:
+  type: int
+  low: 0
+  high: 1
+  step: 1
+  default: 1
+live_fair_value_model_market_calibration_min_samples:
+  type: int
+  low: 8
+  high: 64
+  step: 1
+  default: 8
+live_fair_value_model_beta_calibration_enabled:
+  type: int
+  low: 0
+  high: 1
+  step: 1
+  default: 1
+live_fair_value_model_beta_calibration_min_samples:
+  type: int
+  low: 8
+  high: 64
+  step: 1
+  default: 8
+live_fair_value_model_uncertainty_edge_weight:
+  type: float
+  low: 0.0
+  high: 3.0
+  step: 0.01
+  default: 2.02
+ctf_probability_calibration_min_confidence:
+  type: float
+  low: 0.00
+  high: 0.6
+  step: 0.01
+  default: 0.07
+oracle_market_confirmation_probability_weight:
+  type: float
+  low: 0.25
+  high: 0.85
+  step: 0.01
+  default: 0.8
+oracle_market_confirmation_spread_weight:
+  type: float
+  low: 0.05
+  high: 0.5
+  step: 0.01
+  default: 0.05
+oracle_market_confirmation_depth_weight:
+  type: float
+  low: 0.0
+  high: 0.7
+  step: 0.01
+  default: 0.7
+oracle_market_confirmation_book_weight:
+  type: float
+  low: 0.0
+  high: 0.35
+  step: 0.01
+  default: 0.18
+oracle_ta_boundary_scale:
+  type: float
+  low: 1.0
+  high: 8.0
+  step: 0.01
+  default: 1.47
+oracle_ta_boundary_weight:
+  type: float
+  low: 0.25
+  high: 0.95
+  step: 0.01
+  default: 0.52
+oracle_ta_token_agreement_weight:
+  type: float
+  low: 0.05
+  high: 0.75
+  step: 0.01
+  default: 0.75
+ctf_probability_confidence_market_weight:
+  type: float
+  low: 0.00
+  high: 0.9
+  step: 0.01
+  default: 0.14
+ctf_probability_confidence_spread_weight:
+  type: float
+  low: 0.05
+  high: 0.6
+  step: 0.01
+  default: 0.6
+ctf_probability_confidence_depth_weight:
+  type: float
+  low: 0.05
+  high: 0.6
+  step: 0.01
+  default: 0.34
+oracle_side_cleanup_flip_bump:
+  type: float
+  low: 0.0
+  high: 0.05
+  step: 0.01
+  default: 0.05
+ewma_half_life_ms:
+  type: int
+  low: 500
+  high: 16000
+  step: 500
+  default: 10500
+live_fair_value_model_executable_ev_scale:
+  type: float
+  low: 0.02
+  high: 0.25
+  step: 0.01
+  default: 0.04
+oracle_ta_component_alignment_weight:
+  type: float
+  low: 0.0
+  high: 0.5
+  step: 0.01
+  default: 0.05
+live_fair_value_model_adverse_selection_k:
+  type: float
+  low: 0.0
+  high: 0.6
+  step: 0.01
+  default: 0.6
+ctf_probability_model_market_loser_bid_ambiguity_weight:
+  type: float
+  low: 0.0
+  high: 1.0
+  step: 0.01
+  default: 0.7
+live_fair_value_model_top_loser_adverse_selection_k:
+  type: float
+  low: 0.0
+  high: 1.0
+  step: 0.01
+  default: 1
+entry_cutoff_before_expiry_ms:
+  type: int
+  low: 60000
+  high: 140000
+  step: 1000
+  default: 120000
+ctf_sell_limit_delay_cushion_ticks:
+  type: float
+  low: 1.0
+  high: 20.0
+  step: 1.0
+  default: 20.0
+min_hold_probability_edge:
+  type: float
+  low: 0.02
+  high: 0.4
+  step: 0.01
+  default: 0.3

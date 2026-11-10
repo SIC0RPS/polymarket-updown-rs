@@ -1,0 +1,191 @@
+use serde::Serialize;
+use std::collections::BTreeMap;
+
+use crate::observability::strategy_status::{
+    OracleWaitReason, QuoteBlockReasonCount, QuoteRecomputeReasonObs, StrategyActivityKind,
+    StrategySelectionStatus,
+};
+use crate::polymarket::identity::MarketId;
+
+#[derive(Serialize, Debug, Clone, Copy, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum RuntimeIssueKind {
+    InsufficientBalanceAllowance,
+    GeographicRestriction,
+    StrategyCancelMarketVerifyNonEmpty,
+    StuckOpenOrder,
+    EntryQuoteBelowRequiredMin,
+    MarketBudgetZero,
+    StaleLockDetected,
+    GammaEventsRequestFailed,
+    CexWsConnectTimeout,
+}
+
+#[derive(Serialize, Debug, Clone, Copy, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum ReclaimActionKind {
+    Redeem,
+    Merge,
+}
+
+#[derive(Serialize, Debug, Clone)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum ActionEvent {
+    OracleTick {
+        ts_ms: u64,
+        px: f64,
+        vol: Option<f64>,
+        symbol: String,
+    },
+    OracleStep {
+        ts_ms: u64,
+        symbol: String,
+        timeframe: String,
+        open: f64,
+        high: f64,
+        low: f64,
+        close: f64,
+        volume: f64,
+    },
+    OracleRuntimeStatus {
+        ts_ms: u64,
+        phase: String,
+        connected: bool,
+        required_symbols: Vec<String>,
+        ready_symbols: Vec<String>,
+        symbol_last_tick_ts_ms: Vec<(String, u64)>,
+        symbol_last_tick_age_ms: Vec<(String, u64)>,
+        last_error: Option<String>,
+    },
+    CexQuote {
+        ts_ms: u64,
+        provider: String,
+        symbol: String,
+        bid: f64,
+        ask: f64,
+        bid_sz: Option<f64>,
+        ask_sz: Option<f64>,
+    },
+    MarketSelected {
+        ts_ms: u64,
+        condition_id: MarketId,
+        up_token: String,
+        down_token: String,
+        window_start_ms: u64,
+        window_end_ms: u64,
+        question: Option<String>,
+        slug: Option<String>,
+        underlying: Option<String>,
+    },
+    NextMarketSelected {
+        ts_ms: u64,
+        condition_id: MarketId,
+        up_token: String,
+        down_token: String,
+        window_start_ms: u64,
+        window_end_ms: u64,
+        question: Option<String>,
+        slug: Option<String>,
+        underlying: Option<String>,
+    },
+    NextMarketCleared {
+        ts_ms: u64,
+    },
+    Signal {
+        ts_ms: u64,
+        side: String,
+        p_up: Option<f64>,
+        edge: Option<f64>,
+        reason: String,
+    },
+    StrategyStatus {
+        ts_ms: u64,
+        kind: String,
+        status: String,
+        p_up: Option<f64>,
+        edge: Option<f64>,
+        gate_drop_oracle: u64,
+        gate_drop_book: u64,
+        gate_drop_stale: u64,
+        gate_drop_open_delay: u64,
+        gate_drop_open_price: u64,
+        gate_drop_entry_time: u64,
+        gate_drop_blocked_market: u64,
+        gate_drop_markout_toxicity: u64,
+        gate_drop_oracle_total: u64,
+        gate_drop_book_total: u64,
+        gate_drop_stale_total: u64,
+        gate_drop_open_delay_total: u64,
+        gate_drop_open_price_total: u64,
+        gate_drop_entry_time_total: u64,
+        gate_drop_blocked_market_total: u64,
+        gate_drop_markout_toxicity_total: u64,
+        selection_status: Option<StrategySelectionStatus>,
+        activity: StrategyActivityKind,
+        recompute_reason: Option<QuoteRecomputeReasonObs>,
+        queued: usize,
+        drained: usize,
+        ranked: usize,
+        managed_exits: usize,
+        quote_blocks: Vec<QuoteBlockReasonCount>,
+        primary_block_detail: Option<BTreeMap<String, String>>,
+        shock_toxicity: Option<f64>,
+        markout_toxicity: Option<f64>,
+        markout_samples: Option<u64>,
+        oracle_wait_reason: Option<OracleWaitReason>,
+    },
+    OrderIntent {
+        ts_ms: u64,
+        side: String,
+        token: String,
+        px: f64,
+        size: f64,
+        time_in_force: String,
+        post_only: bool,
+        market_id: Option<MarketId>,
+        close_hint: Option<String>,
+        quote_group: Option<String>,
+        lifecycle_cohort: Option<String>,
+    },
+    OrderAck {
+        ts_ms: u64,
+        order_id: String,
+    },
+    Fill {
+        ts_ms: u64,
+        order_id: String,
+        trade_id: Option<String>,
+        transaction_hash: Option<String>,
+        token: String,
+        side: String,
+        px: f64,
+        size: f64,
+        fee: Option<f64>,
+    },
+    RiskBlock {
+        ts_ms: u64,
+        rule: String,
+        details: String,
+    },
+    RuntimeIssue {
+        ts_ms: u64,
+        scope: String,
+        kind: RuntimeIssueKind,
+        msg: Option<String>,
+        detail: BTreeMap<String, String>,
+    },
+    LocalOrderBlock {
+        ts_ms: u64,
+        reason: String,
+        token: Option<String>,
+        side: Option<String>,
+        detail: BTreeMap<String, String>,
+        raw: String,
+    },
+    ReclaimResolved {
+        ts_ms: u64,
+        kind: ReclaimActionKind,
+        conditions: usize,
+        tx: Option<String>,
+    },
+}

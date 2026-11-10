@@ -1,0 +1,22 @@
+[package]
+name = "bbwick-engine"
+version = "0.2.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "Exported bbwick Rust engine components (wire + ingest + oracle stream)"
+
+[dependencies]
+anyhow = "1"
+canonical_ohlc_arrow = { path = "../canonical_ohlc_arrow" }
+canonical_ohlc_resync = { path = "../canonical_ohlc_resync" }
+chrono = "0.4"
+futures-util = "0.3"
+num-traits = "0.2"
+polymarket-client-sdk = { package = "polymarket_client_sdk_v2", git = "https://github.com/Polymarket/rs-clob-client-v2.git", rev = "3ae1aae5e9ded38f984464c9fc0f307f8a9f41fb", features = ["clob", "ws", "gamma", "data", "heartbeats", "tracing"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+tokio = { version = "1", features = ["macros", "sync", "rt", "rt-multi-thread", "time"] }
+tokio-tungstenite = { version = "0.23", default-features = false, features = ["connect", "rustls-tls-webpki-roots"] }
+tokio-util = { version = "0.7", features = ["rt"] }
+tracing = "0.1"

@@ -1,0 +1,48 @@
+[package]
+edition = "2021"
+name = "cmaes"
+version = "0.2.2"
+build = false
+autolib = false
+autobins = false
+autoexamples = false
+autotests = false
+autobenches = false
+description = "An implementation of the CMA-ES optimization algorithm."
+documentation = "https://docs.rs/cmaes"
+readme = false
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/pengowen123/cmaes"
+
+[lib]
+name = "cmaes"
+path = "src/lib.rs"
+
+[dependencies.nalgebra]
+version = "0.33"
+
+[dependencies.plotters]
+version = "0.3.1"
+features = [
+    "ttf",
+    "bitmap_backend",
+    "bitmap_encoder",
+    "line_series",
+]
+optional = true
+default-features = false
+
+[dependencies.rand]
+version = "0.8.5"
+
+[dependencies.rand_chacha]
+version = "0.3.1"
+
+[dependencies.rayon]
+version = "1.5.1"
+
+[dependencies.statrs]
+version = "0.18"
+
+[features]
+default = ["plotters"]

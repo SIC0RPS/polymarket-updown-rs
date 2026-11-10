@@ -1,0 +1,194 @@
+//! Configuration of automatic restarts at the top-level (not configuration of specific restart
+//! strategies themselves). See [`RestartOptions`] for full documentation.
+
+use std::ops::RangeInclusive;
+use std::time::Duration;
+
+use super::{RestartStrategy, Restarter};
+use crate::{DVector, Mode};
+
+/// Represents invalid options for a `Restarter`.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum InvalidRestartOptionsError {
+    /// The number of dimensions is set to zero.
+    Dimensions,
+    /// The search range size is zero.
+    SearchRange,
+    /// The first-run initial mean dimension does not match the search.
+    InitialMeanDimensions,
+    /// The first-run initial mean contains a non-finite value.
+    InitialMeanNotFinite,
+    /// The first-run initial mean is outside the search range.
+    InitialMeanOutOfRange,
+}
+
+/// Represents invalid options for an individual restart strategy.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum InvalidRestartStrategyOptionsError {
+    /// The initial step size would be set to an invalid value with the given options.
+    InitialStepSize,
+    /// The population size would be set to an invalid value with the given options.
+    PopulationSize,
+}
+
+/// A builder for [`Restarter`][Restarter]. Configuration of individual strategies is done when
+/// creating their respective types.
+///
+/// # Examples
+///
+/// ```
+/// use cmaes::restart::{RestartOptions, RestartStrategy};
+///
+/// let strategy = RestartStrategy::BIPOP(Default::default());
+/// let restarter = RestartOptions::new(10, -1.0..=1.0, strategy).build().unwrap();
+/// ```
+#[derive(Clone, Debug)]
+pub struct RestartOptions {
+    /// The strategy to use in performing the restarts.
+    pub strategy: RestartStrategy,
+    /// The number of dimensions to search.
+    pub dimensions: usize,
+    /// The minimum base population size before the restart strategy adjusts it. The dimension-based
+    /// default is used when this is `None`.
+    pub minimum_population_size: Option<usize>,
+    /// The optimization mode. Default value is [`Minimize`][Mode::Minimize].
+    pub mode: Mode,
+    /// Whether to perform state updates in parallel using multiple threads. Default value is
+    /// `false`.
+    ///
+    /// This may improve performance significantly for large population size runs as used in
+    /// [`IPOP`][crate::restart::IPOP] and [`BIPOP`][crate::restart::BIPOP] if the number of
+    /// dimensions is also large, but will likely degrade performance in other cases. Due to
+    /// floating point errors this option is generally incompatible with setting a fixed
+    /// [`seed`][Self::seed] for deterministic runs.
+    pub parallel_update: bool,
+    /// The range in which to generate the initial mean for each run. The same range is used in each
+    /// dimension (i.e., `[A, B]^N`). To scale the search range separately in each dimension, the
+    /// appropriate transformation should be made to the objective function itself using
+    /// [`Scale`][crate::objective_function::Scale].
+    pub search_range: RangeInclusive<f64>,
+    /// The initial mean used by the first run only.
+    pub first_run_initial_mean: Option<DVector<f64>>,
+    /// The target objective function value. The restart strategy will terminate if/when this value
+    /// is reached. Default value is `None`.
+    pub fun_target: Option<f64>,
+    /// The maximum number of objective function evaluations allowed across all runs. Default value
+    /// is `None`
+    pub max_function_evals: Option<usize>,
+    /// The time limit across all runs. Default value is `None`.
+    pub max_time: Option<Duration>,
+    /// The maximum number of objective function evaluations allowed for each run. Default value
+    /// is `None`.
+    pub max_function_evals_per_run: Option<usize>,
+    /// The maximum number of generations allowed for each run. Default value is `None`.
+    pub max_generations_per_run: Option<usize>,
+    /// Whether to print info about each run. Default value is `false`.
+    pub enable_printing: bool,
+    /// The seed for the [`Restarter`] RNG. This is not the seed for the CMA-ES runs themselves, but
+    /// it is used to generate them. Can be set manually for deterministic runs. By default a random
+    /// seed is used if this field is `None`.
+    pub seed: Option<u64>,
+}
+
+impl RestartOptions {
+    /// Returns the default set of `RestartOptions` with the chosen restart strategy. Set individual
+    /// options using the provided methods.
+    pub fn new(
+        dimensions: usize,
+        mut search_range: RangeInclusive<f64>,
+        strategy: RestartStrategy,
+    ) -> Self {
+        // Correct flipped ranges
+        if search_range.is_empty() {
+            search_range = *search_range.end()..=*search_range.start();
+        }
+
+        Self {
+            strategy,
+            dimensions,
+            minimum_population_size: None,
+            mode: Mode::Minimize,
+            parallel_update: false,
+            search_range,
+            first_run_initial_mean: None,
+            fun_target: None,
+            max_function_evals: None,
+            max_generations_per_run: None,
+            max_time: None,
+            max_function_evals_per_run: None,
+            enable_printing: false,
+            seed: None,
+        }
+    }
+
+    /// Sets the optimization mode.
+    pub fn mode(mut self, mode: Mode) -> Self {
+        self.mode = mode;
+        self
+    }
+
+    /// Sets the minimum base population size before the restart strategy adjusts it.
+    pub fn minimum_population_size(mut self, population_size: usize) -> Self {
+        self.minimum_population_size = Some(population_size);
+        self
+    }
+
+    /// Sets whether to perform state updates in parallel.
+    pub fn parallel_update(mut self, parallel_update: bool) -> Self {
+        self.parallel_update = parallel_update;
+        self
+    }
+
+    /// Sets the target objective function value.
+    pub fn fun_target(mut self, fun_target: f64) -> Self {
+        self.fun_target = Some(fun_target);
+        self
+    }
+
+    /// Sets the maximum number of objective function evaluations allowed across all runs.
+    pub fn max_function_evals(mut self, function_evals: usize) -> Self {
+        self.max_function_evals = Some(function_evals);
+        self
+    }
+
+    /// Sets the time limit.
+    pub fn max_time(mut self, max_time: Duration) -> Self {
+        self.max_time = Some(max_time);
+        self
+    }
+
+    /// Sets the maximum number of objective function evaluations allowed for each run.
+    pub fn max_function_evals_per_run(mut self, function_evals: usize) -> Self {
+        self.max_function_evals_per_run = Some(function_evals);
+        self
+    }
+
+    /// Sets the maximum number of generations allowed for each run.
+    pub fn max_generations_per_run(mut self, generations: usize) -> Self {
+        self.max_generations_per_run = Some(generations);
+        self
+    }
+
+    /// Sets whether to print info about each run.
+    pub fn enable_printing(mut self, enable_printing: bool) -> Self {
+        self.enable_printing = enable_printing;
+        self
+    }
+
+    /// Sets the seed for the [`Restarter`] RNG.
+    pub fn seed(mut self, seed: u64) -> Self {
+        self.seed = Some(seed);
+        self
+    }
+
+    /// Sets the initial mean used by the first run only.
+    pub fn first_run_initial_mean<V: Into<DVector<f64>>>(mut self, initial_mean: V) -> Self {
+        self.first_run_initial_mean = Some(initial_mean.into());
+        self
+    }
+
+    /// Attempts to build the [`Restarter`] from the chosen options.
+    pub fn build(self) -> Result<Restarter, InvalidRestartOptionsError> {
+        Restarter::new(self)
+    }
+}

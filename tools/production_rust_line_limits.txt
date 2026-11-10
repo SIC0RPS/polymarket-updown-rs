@@ -1,0 +1,13 @@
+src/autotuner/optimize.rs	1949
+src/config/mod.rs	2771
+src/dashboard/agent_api.rs	1382
+src/dashboard/mod.rs	12628
+src/event_ledger.rs	1451
+src/main.rs	3118
+src/observability/mod.rs	1640
+src/observability/tui.rs	1467
+src/portfolio/mod.rs	1641
+src/risk/mod.rs	1717
+src/risk/recon.rs	1055
+src/strategy/maker_rebate_mm.rs	2085
+src/strategy/paired_entry.rs	1080

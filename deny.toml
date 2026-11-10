@@ -1,0 +1,54 @@
+[graph]
+all-features = true
+
+[advisories]
+version = 2
+yanked = "warn"
+# Report unmaintained crates but ignore specific, unavoidable transitive advisories for now.
+unmaintained = "all"
+ignore = [
+  "RUSTSEC-2025-0012", # backoff (transitive via polymarket-client-sdk)
+  "RUSTSEC-2024-0384", # instant (transitive via backoff)
+  "RUSTSEC-2024-0436", # paste (transitive via alloy/*)
+]
+
+[licenses]
+version = 2
+allow = [
+  "Apache-2.0",
+  "Apache-2.0 WITH LLVM-exception",
+  "MIT",
+  "BSD-2-Clause",
+  "BSD-3-Clause",
+  "ISC",
+  "OpenSSL",
+  "Zlib",
+  "MPL-2.0",
+  "CDLA-Permissive-2.0",
+  "Unicode-3.0",
+]
+confidence-threshold = 0.8
+
+[bans]
+multiple-versions = "allow"
+wildcards = "deny"
+allow-wildcard-paths = true
+highlight = "all"
+deny = [
+  # Typosquat of the official Polymarket SDK crate name (removed for malicious code).
+  { crate = "polymarket-clients-sdk", reason = "typosquat of polymarket-client-sdk" },
+]
+
+# Skip known duplicate-version hotspots that are not worth fighting in this repo.
+skip = [
+  { crate = "convert_case@0.6.0", reason = "config pins an older convert_case; harmless for this project" },
+]
+skip-tree = [
+  { crate = "windows-sys", reason = "windows-* target crates bump frequently and cause unavoidable duplicates" },
+]
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+allow-git = []

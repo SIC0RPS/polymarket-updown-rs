@@ -1,0 +1,128 @@
+optimizer:
+  selection_mode: prediction
+  jobs: 0
+  auto:
+    seed: 20260714162218
+    max_function_evals: 512
+    max_generations_per_run: 64
+    max_no_improvement_evals: 240
+live_fair_value_model_micro_logistic_l2_penalty:
+  type: float
+  low: 0.25
+  high: 4.0
+  step: 0.25
+  default: 1.0
+live_fair_value_model_market_calibration_l2_penalty:
+  type: float
+  low: 0.25
+  high: 4.0
+  step: 0.25
+  default: 1.0
+live_fair_value_model_beta_calibration_l2_penalty:
+  type: float
+  low: 0.25
+  high: 4.0
+  step: 0.25
+  default: 1.0
+live_fair_value_model_prob_calibration_logit_bias:
+  type: float
+  low: -0.03
+  high: 0.03
+  step: 0.01
+  default: -0.03
+live_fair_value_model_prob_calibration_logit_scale:
+  type: float
+  low: 0.85
+  high: 1.35
+  step: 0.01
+  default: 0.98
+live_fair_value_model_depth_pressure_logit_weight:
+  type: float
+  low: 0.0
+  high: 0.8
+  step: 0.01
+  default: 0.0
+live_fair_value_model_min_forecast_sigma2:
+  type: float
+  low: 5.0e-09
+  high: 3.0e-08
+  step: 1.0e-09
+  default: 9.0e-09
+live_fair_value_model_model_blend_min_weight:
+  type: float
+  low: 0.0
+  high: 0.35
+  step: 0.01
+  default: 0.03
+live_fair_value_model_model_blend_weight_span_fraction:
+  type: float
+  low: 0.0
+  high: 1.0
+  step: 0.01
+  default: 0
+live_fair_value_model_model_blend_edge_full:
+  type: float
+  low: 0.04
+  high: 0.12
+  step: 0.01
+  default: 0.05
+live_fair_value_model_model_blend_toxicity_k:
+  type: float
+  low: 0.1
+  high: 0.35
+  step: 0.01
+  default: 0.28
+live_fair_value_model_market_calibration_enabled:
+  type: int
+  low: 0
+  high: 1
+  step: 1
+  default: 0
+live_fair_value_model_market_calibration_min_samples:
+  type: int
+  low: 8
+  high: 64
+  step: 1
+  default: 8
+live_fair_value_model_beta_calibration_enabled:
+  type: int
+  low: 0
+  high: 1
+  step: 1
+  default: 0
+live_fair_value_model_beta_calibration_min_samples:
+  type: int
+  low: 8
+  high: 64
+  step: 1
+  default: 8
+ctf_probability_calibration_min_confidence:
+  type: float
+  low: 0.00
+  high: 0.6
+  step: 0.01
+  default: 0.35
+ctf_probability_confidence_market_weight:
+  type: float
+  low: 0.00
+  high: 0.9
+  step: 0.01
+  default: 0.5
+ctf_probability_confidence_spread_weight:
+  type: float
+  low: 0.05
+  high: 0.6
+  step: 0.01
+  default: 0.25
+ctf_probability_confidence_depth_weight:
+  type: float
+  low: 0.05
+  high: 0.6
+  step: 0.01
+  default: 0.25
+ewma_half_life_ms:
+  type: int
+  low: 500
+  high: 16000
+  step: 500
+  default: 2000

@@ -1,0 +1,3 @@
+formula_type: expression
+expression: |-
+  P + P * max(A, 0) * (W / N)

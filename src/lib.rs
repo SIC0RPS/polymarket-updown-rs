@@ -1,0 +1,29 @@
+#![recursion_limit = "256"]
+#![deny(dead_code)]
+
+pub mod approve;
+pub mod build_info;
+pub mod capture;
+pub mod config;
+pub(crate) mod ctf_accounting;
+pub mod ctf_inventory;
+pub mod engine_trade_journal;
+pub mod event_ledger;
+pub mod execution;
+pub mod observability;
+pub mod optimizer_report;
+pub mod oracle_resolution;
+pub mod orders;
+pub mod polygon_rpc;
+pub mod polymarket;
+pub mod portfolio;
+pub mod reclaim_merge;
+pub mod report_markdown;
+pub mod risk;
+pub mod runtime_control;
+pub mod runtime_files;
+pub mod strategy;
+pub mod strategy_runtime;
+pub mod telemetry;
+pub mod trade_session_ledger;
+pub mod types;

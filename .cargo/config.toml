@@ -1,0 +1,11 @@
+[alias]
+xt = "test --all-targets --all-features"
+xclippy = "clippy --workspace --all-targets --all-features -- -D warnings"
+xfmt = "fmt --all"
+xfmt-check = "fmt --all -- --check"
+
+[build]
+target-dir = "target"
+
+[net]
+retry = 2

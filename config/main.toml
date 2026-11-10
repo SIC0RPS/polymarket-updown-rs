@@ -1,0 +1,350 @@
+# Instrument list captured in session metadata and startup market-data bookkeeping.
+symbols = [
+  "POLYMARKET-BTC-USD",
+]
+
+# Budget Controls
+
+# Per-order quantity cap in shares/contracts for any single order intent; 0 disables this risk guard.
+max_order_qty = 0
+
+[polymarket.execution]
+# EN: Real live-execution control block. This is the section actually used by the config loader.
+# FR: Vrai bloc de controle de l'execution live. C'est la section reellement utilisee par le chargeur de configuration.
+
+# EN: Live execution is mandatory for supported runtime startup.
+# FR: L'execution live est obligatoire pour le runtime supporte.
+mode = "live"
+
+# EN: true = block all new buys and cancel open buy orders. Sell exits and cancels still work.
+# FR: true = bloque tous les nouveaux achats et annule les ordres d'achat ouverts. Les ventes de sortie et les annulations continuent de fonctionner.
+PAUSE = true
+
+# Venue order type for resting orders; maker_rebate_mm requires gtc or gtd.
+order_type = "gtd"
+
+# Cooldown per condition after a reclaim attempt fails.
+reclaim_retry_cooldown_secs = 30
+
+# PIA shared-region ID prepared before live order submission starts. Requires restart to change.
+order_submit_pia_region = "ad"
+
+[strategy.maker_rebate_mm]
+
+# Entry mode for new markets; false is the default.
+# false = split collateral into UP + DOWN and use the unchanged paired strategy.
+# true = wait for shared First SELL activation using frozen planned CTF entry
+# terms, then buy First's predicted winning side and hold confirmed acquisitions
+# to settlement. No actual split occurs and no prediction locks before activation.
+# The waiting clock starts at entry admission, not split confirmation; historical
+# First timestamps are not promised. Activation locks the winning side and time
+# before BUY admission. The non-post-only GTD BUY expires at market end; existing
+# cash, inventory, market-budget, and PAUSE controls apply.
+# Changing this setting does not change an existing entry's mode or selected side.
+oracle_buy_and_hold = true
+
+# Inventory / Exit
+
+# Inventory limit applied to each symbol-filtered live portfolio view.
+max_inventory_total = 0
+
+# Maximum new orders admitted during one strategy cycle.
+max_orders_per_cycle = 8
+
+# Extra threshold added while asymmetric cleanup is active.
+oracle_side_cleanup_flip_bump = 0.01
+
+# Minimum time winner protection must remain eligible before promotion.
+protection_dwell_ms = 500
+
+# Universe / Rate
+
+# Underlying allowlist for live trading; empty means all supported assets.
+enabled_assets = ["BTC", "ETH"]
+
+# Main strategy loop cadence during normal steady-state operation.
+normal_rebalance_interval_ms = 400
+
+# Faster reactive cadence used when pending work or quote churn requires tighter refresh.
+fast_rebalance_interval_ms = 200
+
+# Quote Quality
+
+# Book age threshold used when ranking markets.
+ranking_book_max_age_ms = 5000
+paired_first_managed_sell_book_max_age_ms = 1500
+
+# Max accepted age for cached/live oracle state before the strategy treats it as stale.
+max_oracle_staleness_ms = 20000 # 30000
+
+# Minimum milliseconds remaining to market expiry for new entry quoting to stay eligible.
+entry_cutoff_before_expiry_ms = 60000
+
+# Half-life for symbol-local oracle EWMA state updates.
+ewma_half_life_ms = 2000
+
+# Oracle shock normalization scale in basis points for toxicity scoring.
+oracle_shock_bps = 10.0
+
+# Markout horizons used for adverse-selection tracking and market toxicity state.
+markout_windows_ms = [1000, 3000, 10000]
+
+# Weights for markout window aggregation.
+markout_window_weights = [0.6, 0.3, 0.1]
+
+# Extra maker-admission distance beyond the venue minimum post-only rule.
+admission_buffer_ticks = 1
+
+# Minimum rest window for passive quotes before normal reconsideration.
+passive_min_rest_ms = 1000
+
+# Cooldown after a post-only cross reject during which extra maker buffer applies.
+post_only_reject_cooldown_ms = 2500
+
+# Max extra maker-buffer ticks applied while a post-only cross-reject streak is active.
+post_only_reject_max_extra_buffer_ticks = 2
+
+# Size multiplier applied while a post-only cross-reject streak is active.
+post_only_reject_size_multiplier = 0.5
+
+[polymarket]
+# Master gate for Polymarket market-data runtimes; this strategy requires it enabled.
+market_data_enabled = true
+
+# Chooses WebSocket versus HTTP market data. This live setup uses WS.
+market_data_mode = "ws"
+
+# Polygon RPC used for account reads, reconciliation, execution, and settlement.
+account_rpc_url = "https://polygon-bor-rpc.publicnode.com"
+
+# Base REST CLOB endpoint for live execution; bbwick transport owns full-book recovery.
+clob_http_url = "https://clob.polymarket.com/"
+
+# Base WebSocket endpoint for market data and authenticated user streams.
+clob_ws_url = "wss://ws-subscriptions-clob.polymarket.com"
+
+# Gamma API base URL used for market discovery metadata.
+gamma_http_url = "https://gamma-api.polymarket.com/"
+
+# Data API base URL used by reconciliation, dashboard account views, and reclaim polling.
+data_http_url = "https://data-api.polymarket.com"
+
+# Passes venue server-time synchronization into the CLOB client.
+use_server_time = false
+
+# Default token id for single-market operation when discovery is disabled or HTTP mode is used.
+token_id = ""
+
+# Polygon chain id used for signing, proxy derivation, and contract routing.
+chain_id = 137
+
+# Environment variable name that holds the live private key.
+private_key_env = "POLYMARKET_PRIVATE_KEY"
+
+# Wallet/proxy address tracked for execution, reconciliation, and dashboard state.
+# Default only. Live source of truth should be
+# PMHFT__POLYMARKET__WALLET_ADDRESS in ../.env.
+wallet_address = ""
+
+[polymarket.discovery]
+# Master gate for Polymarket discovery; this strategy expects discovery enabled in WS mode.
+enabled = true
+
+# Query string tokenized against Gamma market titles and slugs.
+query = "5m updown"
+
+# Poll interval for the background discovery loop.
+poll_interval_ms = 2000
+
+# Timeout around a single discovery pass.
+timeout_ms = 30000
+
+# Expected market window size filter.
+window_ms = 300000
+
+# Allowed deviation from window_ms.
+window_tolerance_ms = 30000
+
+# Extra slug substrings that must be present.
+slug_must_contain = ["5m", "updown"]
+
+# Market-data readiness universe. Live trading scope is controlled only by strategy enabled_assets.
+underlyings_allowlist = ["btc", "eth", "sol", "xrp"]
+
+# Lower bound on time remaining for discovered markets.
+min_time_left_ms = 10000
+
+# Upper bound on time remaining for discovered markets.
+max_time_left_ms = 900000
+
+# Reject markets only when Gamma explicitly marks order books disabled.
+require_order_book = true
+
+# Reject markets only when Gamma explicitly marks accepting_orders false.
+require_accepting_orders = true
+
+[risk]
+# Budget Controls
+
+# Per-market USDC cap across both outcome tokens plus open buy orders; 0 disables.
+max_window_cost = 6.0
+
+# Dynamic per-market cap as a fraction of current equity; combined with max_window_cost using the tighter bound.
+max_market_equity_pct = 0.50
+# WARNING DO NOT CHANGE THIS VALUE. EVER
+
+# Safety
+
+# Enables the full risk layer and reconciliation-driven safeguards.
+enabled = true
+
+# Entry intents are blocked during this startup cooldown window.
+startup_cooldown_ms = 60000
+
+# Max count of simultaneous locally tracked open orders across all markets; 0 blocks new orders.
+max_open_orders = 6
+
+# Cancel open orders whose age exceeds this many milliseconds.
+order_timeout_ms = 120000
+
+# Minimum wallet USDC balance required for startup and new-order gating.
+min_usdc_balance = 5.0
+
+# Global drawdown pause in USD/USDC equity loss from peak; 0 disables it.
+max_drawdown_usd = 0
+
+[bbwick_oracle]
+# Sole oracle authority for trader: bbwick over ZMQ.
+enabled = true
+
+# Quote suffix used when deriving a symbol from an underlying without an explicit map entry.
+quote_asset = "USDT"
+
+[bbwick_oracle.symbols]
+# Enable BTCUSDT subscriptions and allow strategy mapping to this symbol.
+BTCUSDT = true
+
+# Enable ETHUSDT subscriptions and allow strategy mapping to this symbol.
+ETHUSDT = true
+
+# Enable SOLUSDT subscriptions and allow strategy mapping to this symbol.
+SOLUSDT = true
+
+# Enable XRPUSDT subscriptions and allow strategy mapping to this symbol.
+XRPUSDT = false
+
+[bbwick_oracle.underlying_symbol_map]
+# Map Polymarket btc markets to BTCUSDT.
+btc = "BTCUSDT"
+
+
+[bbwick_oracle.transport]
+# Live spot WebSocket ingress owned by the in-process bbwick_engine runtime.
+ws_url = "wss://stream.binance.com:9443/stream"
+
+# Spot REST base kept under bbwick ownership for canonical market-data API responsibilities.
+rest_base_url = "https://api.binance.com"
+
+# Polymarket market-channel WebSocket ingress owned by the in-process bbwick_engine runtime.
+polymarket_ws_url = "wss://ws-subscriptions-clob.polymarket.com/ws/market"
+
+# Polymarket CLOB HTTP base used by bbwick transport for REST full-book recovery.
+polymarket_clob_http_url = "https://clob.polymarket.com"
+
+# Use vendor server time when hydrating Polymarket market-data clients.
+polymarket_use_server_time = false
+
+# Provider stream selection.
+provider_subscribe_trades = true
+provider_subscribe_top_of_book = true
+provider_subscribe_klines = true
+
+# Polymarket stream selection.
+polymarket_subscribe_orderbook = true
+polymarket_subscribe_prices = true
+polymarket_subscribe_tick_size = true
+polymarket_subscribe_last_trade = true
+
+# Canonical closed-kline streams owned by bbwick_engine.
+step_timeframes = ["1m", "5m"]
+
+[bbwick_oracle.runtime]
+# Capacity of the oracle ingest channel.
+ingest_channel_capacity = 2048
+
+# Capacity of the downstream tick/step channels.
+tick_channel_capacity = 2048
+
+[bbwick_oracle.history]
+# Engine-owned shared Arrow history used by Poly-updown and bbwick insight.
+enabled = true
+
+# Shared Arrow root inside this repository.
+data_root = "crates/bbwick_engine/mData"
+
+# Persist at most this many bars per symbol/timeframe.
+max_bars = 1000
+
+[observability]
+# Master gate for observability runtime pieces such as action logging.
+# The HTTP dashboard below has its own enabled flag and starts independently.
+enabled = true
+
+[observability.logging]
+# Tracing filter level for runtime logs.
+level = "info"
+
+# Duplicate tracing output to stdout.
+stdout = true
+
+# Log formatting style for process/runtime.log.
+format = "json"
+
+# Directory containing the live runtime and action log files.
+dir = "logs/process"
+
+# Hard cap for logs/process/runtime.log. Do not switch to timestamped/random files; the engine
+# truncates and reuses the same filename when this cap is hit.
+runtime_log_max_bytes = 67108864
+
+# Enable async JSONL action logging.
+action_log_enabled = true
+
+# Path to the action-event JSONL log.
+action_log_path = "logs/actions.jsonl"
+
+# Hard cap for logs/actions.jsonl. Do not switch to timestamped/random files; the engine
+# truncates and reuses the same filename when this cap is hit.
+action_log_max_bytes = 134217728
+
+# Flush the action log after this many events, or sooner on shutdown.
+action_log_flush_every = 200
+
+# If true, high-frequency tick/book/quote events also go through the action-log path instead of UI-only routing.
+log_ticks = false
+
+[observability.dashboard]
+# Enables the HTTP dashboard server and its /ws stream.
+enabled = true
+
+# Host/interface to bind the dashboard HTTP listener.
+bind_host = "127.0.0.1"
+
+# TCP port for the dashboard HTTP listener.
+port = 3000
+
+[capture]
+# Enables per-session JSONL capture bundles for live execution.
+enabled = true
+
+# Root directory where each capture session folder is created.
+base_dir = "data/captures"
+
+# Stop each capture session after this many milliseconds.
+max_duration_ms = 3600000
+
+# Save any capture that reaches this many milliseconds.
+min_save_duration_ms = 1800000
+
+# Keep at most this many valid finalized capture sessions.
+max_sessions = 12
