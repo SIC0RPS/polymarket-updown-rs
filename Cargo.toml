@@ -68,6 +68,7 @@ tokio = { version = "1.40", features = ["fs", "io-util", "macros", "process", "r
 tokio-tungstenite = { version = "0.23", default-features = false, features = ["connect", "rustls-tls-webpki-roots"] }
 tokio-util = { version = "0.7", features = ["rt"] }
 ta = "0.5"
+fin-primitives = { version = "4.0.1", default-features = false, features = ["indicators"] }
 tracing = "0.1"
 tracing-appender = "0.2"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt", "json"] }
