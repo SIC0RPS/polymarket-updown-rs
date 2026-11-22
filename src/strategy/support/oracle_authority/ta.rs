@@ -1,9 +1,9 @@
 use ::ta::indicators::{
     BollingerBands, ExponentialMovingAverage, MovingAverageConvergenceDivergence,
-    RelativeStrengthIndex,
 };
-use ::ta::{DataItem, Next};
+use ::ta::{Close, DataItem, Next};
 use anyhow::{anyhow, Result};
+use fin_primitives::signals::float::RsiF64;
 
 const ORACLE_TA_MIN_BARS: usize = 50;
 
@@ -31,7 +31,7 @@ pub(crate) struct OracleTaBar {
 pub(crate) struct OracleTaFeatureCalculator {
     ema_fast_20: ExponentialMovingAverage,
     ema_slow_50: ExponentialMovingAverage,
-    rsi_14: RelativeStrengthIndex,
+    rsi_14: RsiF64,
     macd_12_26_9: MovingAverageConvergenceDivergence,
     bb_20_2: BollingerBands,
 }
@@ -100,8 +100,7 @@ impl OracleTaFeatureCalculator {
                 .map_err(|err| anyhow!("ema_fast_20 init failed: {err}"))?,
             ema_slow_50: ExponentialMovingAverage::new(50)
                 .map_err(|err| anyhow!("ema_slow_50 init failed: {err}"))?,
-            rsi_14: RelativeStrengthIndex::new(14)
-                .map_err(|err| anyhow!("rsi_14 init failed: {err}"))?,
+            rsi_14: RsiF64::new(14).map_err(|err| anyhow!("rsi_14 init failed: {err}"))?,
             macd_12_26_9: MovingAverageConvergenceDivergence::new(12, 26, 9)
                 .map_err(|err| anyhow!("macd_12_26_9 init failed: {err}"))?,
             bb_20_2: BollingerBands::new(20, 2.0)
@@ -135,7 +134,7 @@ impl OracleTaFeatureCalculator {
         RawTaSnapshot {
             ema_fast_20: self.ema_fast_20.next(item),
             ema_slow_50: self.ema_slow_50.next(item),
-            rsi_14: self.rsi_14.next(item),
+            rsi_14: self.rsi_14.update(item.close()).unwrap_or(f64::NAN),
             macd_line_12_26_9: macd.macd,
             macd_signal_12_26_9: macd.signal,
             macd_hist_12_26_9: macd.histogram,
@@ -169,4 +168,33 @@ fn trend_sign(value: f64, deadband: f64) -> i8 {
 
 fn trend_value(value: f64, deadband: f64) -> f64 {
     f64::from(trend_sign(value, deadband))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn rsi_regime_uses_wilder_rsi_14() {
+        // 40 bars up then 5 bars down: Wilder RSI(14) = 58.83, an EMA(2/15) RSI reads ~38.9.
+        let mut closes = vec![100.0; 5];
+        closes.extend((0..40).map(|i| 100.0 + f64::from(i)));
+        closes.extend((1..=5).map(|j| 139.0 - 1.5 * f64::from(j)));
+        let bars: Vec<OracleTaBar> = closes
+            .iter()
+            .enumerate()
+            .map(|(i, &close)| OracleTaBar {
+                ts_ms: i as i64 * 60_000,
+                open: close,
+                high: close,
+                low: close,
+                close,
+                volume: 1.0,
+            })
+            .collect();
+        let features = OracleTaFeatureCalculator::features_from_bars(&bars)
+            .unwrap()
+            .unwrap();
+        assert!((features.ta_rsi_regime - 0.176_586_449).abs() < 1e-6);
+    }
 }
